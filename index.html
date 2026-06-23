@@ -9,8 +9,9 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: #111;
+      background: #ffffff; /* sfondo bianco */
     }
+
     canvas {
       display: block;
     }
@@ -20,11 +21,12 @@
 <body>
 
 <script type="module">
+
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
 let scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+scene.background = new THREE.Color(0xffffff); // sfondo bianco
 
 let camera = new THREE.PerspectiveCamera(
   60,
@@ -33,19 +35,26 @@ let camera = new THREE.PerspectiveCamera(
   1000
 );
 
-let renderer = new THREE.WebGLRenderer({ antialias: true });
+camera.position.set(0, 1, 5);
+
+let renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  alpha: true
+});
+
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-// luci
-const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-scene.add(light);
+// LUCI (fondamentali per vedere il modello)
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 5);
 scene.add(directionalLight);
 
-// clock per animazioni
+// CLOCK per animazioni
 const clock = new THREE.Clock();
 let mixer;
 
@@ -53,33 +62,40 @@ let mixer;
 const loader = new GLTFLoader();
 
 loader.load(
-  "Nuovo1.glb",
+  "Nuovo1.glb";
+
   function (gltf) {
 
     const model = gltf.scene;
     scene.add(model);
 
-    // centra modello
-    model.position.set(0, 0, 0);
+    // centra automaticamente
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
 
     // animazioni
     mixer = new THREE.AnimationMixer(model);
 
-    gltf.animations.forEach((clip) => {
-      const action = mixer.clipAction(clip);
-      action.play();
-    });
+    if (gltf.animations.length > 0) {
+      gltf.animations.forEach((clip) => {
+        const action = mixer.clipAction(clip);
+        action.play();
+      });
+    } else {
+      console.warn("Nessuna animazione trovata nel file GLB");
+    }
 
   },
+
   undefined,
+
   function (error) {
-    console.error(error);
+    console.error("Errore caricamento modello:", error);
   }
 );
 
-camera.position.z = 5;
-
-// LOOP ANIMAZIONE
+// ANIMAZIONE LOOP
 function animate() {
   requestAnimationFrame(animate);
 
@@ -92,12 +108,13 @@ function animate() {
 
 animate();
 
-// resize
+// RESIZE finestra
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 </script>
 
 </body>
