@@ -1,33 +1,26 @@
 loader.load(
-  "/Ultima/Nuovo1.glb",
+  "./Nuovo1.glb",
 
   function (gltf) {
-
-    console.log("MODELLO CARICATO");
 
     const model = gltf.scene;
     scene.add(model);
 
-    // sicurezza: scala
-    model.scale.set(1, 1, 1);
-
-    // centra modello
     const box = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     model.position.sub(center);
 
-    // animazioni
     mixer = new THREE.AnimationMixer(model);
 
     gltf.animations.forEach((clip) => {
       mixer.clipAction(clip).play();
     });
 
+    console.log("MODELLO CARICATO");
+
   },
 
-  function (xhr) {
-    console.log((xhr.loaded / xhr.total * 100) + "% caricato");
-  },
+  undefined,
 
   function (error) {
     console.error("ERRORE GLB:", error);
