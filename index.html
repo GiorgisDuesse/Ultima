@@ -1,14 +1,14 @@
 loader.load(
-  "./Nuovo1.glb",
+  "/Ultima/Nuovo1.glb",
 
   function (gltf) {
 
-    console.log("✅ MODELLO CARICATO");
+    console.log("MODELLO CARICATO");
 
     const model = gltf.scene;
     scene.add(model);
 
-    // 🔧 scala di sicurezza (spesso il modello è troppo grande/piccolo)
+    // sicurezza: scala
     model.scale.set(1, 1, 1);
 
     // centra modello
@@ -16,24 +16,12 @@ loader.load(
     const center = box.getCenter(new THREE.Vector3());
     model.position.sub(center);
 
-    // luci extra (IMPORTANTISSIMO per vedere il modello)
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
-    scene.add(hemi);
-
     // animazioni
     mixer = new THREE.AnimationMixer(model);
 
-    if (gltf.animations.length === 0) {
-      console.warn("❌ Nessuna animazione trovata");
-    } else {
-      console.log("🎬 Animazioni trovate:", gltf.animations.length);
-
-      gltf.animations.forEach((clip) => {
-        console.log("▶ clip:", clip.name);
-        const action = mixer.clipAction(clip);
-        action.play();
-      });
-    }
+    gltf.animations.forEach((clip) => {
+      mixer.clipAction(clip).play();
+    });
 
   },
 
@@ -42,6 +30,6 @@ loader.load(
   },
 
   function (error) {
-    console.error("❌ ERRORE CARICAMENTO GLB:", error);
+    console.error("ERRORE GLB:", error);
   }
 );
