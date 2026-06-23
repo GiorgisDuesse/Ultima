@@ -32,7 +32,7 @@ const loader = new GLTFLoader();
 const clock = new THREE.Clock();
 let mixer;
 
-loader.load("/Ultima/Nuovo1.glb", ...)
+loader.load("/Ultima/Nuovo1.glb",
 
   function (gltf) {
 
@@ -67,8 +67,8 @@ animate();
 console.log("SCRIPT OK");
 
 window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+camera.position.set(0, 2, 5);
+camera.lookAt(0, 0, 0);
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
