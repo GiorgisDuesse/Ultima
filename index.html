@@ -22,51 +22,45 @@ const clock = new THREE.Clock();
 let mixer;
 
 loader.load(
-  "./Nuovo1.glb",
+  "Nuovo1.glb",
 
   function (gltf) {
 
+    console.log("✅ MODELLO CARICATO");
+
     const model = gltf.scene;
     scene.add(model);
+
+    // scala di sicurezza (importantissimo)
+    model.scale.set(1, 1, 1);
 
     // centra modello
     const box = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     model.position.sub(center);
 
+    // luci extra (molto importante)
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2));
+
+    // animazioni
     mixer = new THREE.AnimationMixer(model);
+
+    if (gltf.animations.length === 0) {
+      console.warn("❌ Nessuna animazione trovata");
+    }
 
     gltf.animations.forEach((clip) => {
       mixer.clipAction(clip).play();
     });
 
-    console.log("MODELLO CARICATO");
-
   },
 
-  undefined,
+  function (xhr) {
+    console.log((xhr.loaded / xhr.total * 100) + "% caricato");
+  },
 
   function (error) {
-    console.error(error);
+    console.error("❌ ERRORE CARICAMENTO GLB:", error);
   }
 );
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (mixer) {
-    mixer.update(clock.getDelta());
-  }
-
-  renderer.render(scene, camera);
-}
-
-animate();
-
-// resize
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
 </script>
