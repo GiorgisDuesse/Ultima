@@ -55,17 +55,16 @@ loader.load("/Ultima/Nuovo1.glb", ...)
 
   undefined,
 
-  function (error) {
-    console.error("ERRORE:", error);
-  }
-);
-
 function animate() {
   requestAnimationFrame(animate);
+
   if (mixer) mixer.update(clock.getDelta());
+
   renderer.render(scene, camera);
 }
 animate();
+
+console.log("SCRIPT OK");
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
