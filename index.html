@@ -1,29 +1,22 @@
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-
 <script type="module">
-import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
+console.log("SCRIPT PARTITO");
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 5);
-camera.lookAt(0,0,0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// luci
+// LUCI (fondamentale)
 scene.add(new THREE.AmbientLight(0xffffff, 2));
+
 const light = new THREE.DirectionalLight(0xffffff, 2);
 light.position.set(5,5,5);
 scene.add(light);
@@ -32,9 +25,13 @@ const loader = new GLTFLoader();
 const clock = new THREE.Clock();
 let mixer;
 
-loader.load("/Ultima/Nuovo1.glb",
+// MODELLO
+loader.load(
+  "./Nuovo1.glb",
 
   function (gltf) {
+
+    console.log("MODELLO CARICATO");
 
     const model = gltf.scene;
     scene.add(model);
@@ -49,12 +46,18 @@ loader.load("/Ultima/Nuovo1.glb",
       mixer.clipAction(clip).play();
     });
 
-    console.log("MODELLO CARICATO");
-
   },
 
-  undefined,
+  function (xhr) {
+    console.log("Caricamento:", (xhr.loaded / xhr.total * 100) + "%");
+  },
 
+  function (err) {
+    console.error("ERRORE GLB:", err);
+  }
+);
+
+// LOOP RENDER
 function animate() {
   requestAnimationFrame(animate);
 
@@ -62,13 +65,13 @@ function animate() {
 
   renderer.render(scene, camera);
 }
+
 animate();
 
-console.log("SCRIPT OK");
-
+// RESIZE
 window.addEventListener("resize", () => {
-camera.position.set(0, 2, 5);
-camera.lookAt(0, 0, 0);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
