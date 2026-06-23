@@ -1,11 +1,12 @@
 <script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
+import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+import { GLTFLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
 console.log("SCRIPT PARTITO");
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff);
+scene.background = new THREE.Color(0xf0f0f0);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 5);
@@ -18,14 +19,13 @@ document.body.appendChild(renderer.domElement);
 scene.add(new THREE.AmbientLight(0xffffff, 2));
 
 const light = new THREE.DirectionalLight(0xffffff, 2);
-light.position.set(5,5,5);
+light.position.set(5, 5, 5);
 scene.add(light);
 
 const loader = new GLTFLoader();
 const clock = new THREE.Clock();
 let mixer;
 
-// MODELLO
 loader.load(
   "./Nuovo1.glb",
 
@@ -36,12 +36,16 @@ loader.load(
     const model = gltf.scene;
     scene.add(model);
 
+    // centra + scala automatica
     const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3()).length();
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
 
-// scala automatica (molto importante)
-    const scale = 3 / size;
-    model.scale.set(scale, scale, scale);
+    model.position.sub(center);
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 3 / maxDim;
+    model.scale.setScalar(scale);
 
     mixer = new THREE.AnimationMixer(model);
 
@@ -52,15 +56,15 @@ loader.load(
   },
 
   function (xhr) {
-    console.log("Caricamento:", (xhr.loaded / xhr.total * 100) + "%");
+    console.log((xhr.loaded / xhr.total * 100) + "% caricato");
   },
 
-  function (err) {
-    console.error("ERRORE GLB:", err);
+  function (error) {
+    console.error("ERRORE GLB:", error);
   }
 );
 
-// LOOP RENDER
+// LOOP
 function animate() {
   requestAnimationFrame(animate);
 
@@ -71,10 +75,10 @@ function animate() {
 
 animate();
 
-// RESIZE
 window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 </script>
