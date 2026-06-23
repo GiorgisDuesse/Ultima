@@ -1,20 +1,104 @@
-<!doctype html>
-<html>
-  <head>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <style>
-      model-viewer { width: 100%; height: 100vh; }
-    </style>
-  </head>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Viewer 3D</title>
 
-  <body>
-    <model-viewer
-      src="Nuovo.glb"
-      autoplay
-      camera-controls
-      ar
-      animation-name="*"
-      loop>
-    </model-viewer>
-  </body>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
+let scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+let camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+
+let renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// luci
+const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+scene.add(light);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 5);
+scene.add(directionalLight);
+
+// clock per animazioni
+const clock = new THREE.Clock();
+let mixer;
+
+// CARICAMENTO MODELLO
+const loader = new GLTFLoader();
+
+loader.load(
+  "Nuovo1.glb",
+  function (gltf) {
+
+    const model = gltf.scene;
+    scene.add(model);
+
+    // centra modello
+    model.position.set(0, 0, 0);
+
+    // animazioni
+    mixer = new THREE.AnimationMixer(model);
+
+    gltf.animations.forEach((clip) => {
+      const action = mixer.clipAction(clip);
+      action.play();
+    });
+
+  },
+  undefined,
+  function (error) {
+    console.error(error);
+  }
+);
+
+camera.position.z = 5;
+
+// LOOP ANIMAZIONE
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (mixer) {
+    mixer.update(clock.getDelta());
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// resize
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+
+</body>
 </html>
